@@ -1,0 +1,43 @@
+- name: db configuration
+  hosts: db.vishruth.online
+  vars:
+   login_host: db.vishruth.online
+  vars_prompt:
+    name: mysql_root_password
+    prompt: "please enter your db password"
+   
+  tasks:
+  - name: installing mysql      #installing mysql
+    ansible.builtin.dnf:
+    - name: mysql
+      status: latest
+  - name: start service         #staring and enabling service
+    ansible.builtin.service:
+    - name: mysql
+      status: started
+      enabled: yes
+  - name: installing python dependencies to connect mysql    #installing python depencencies to connect mysql
+     ansible.builtin.pip:
+      name:
+      - PyMySQL   #to connect mysql python dependency
+      - cryptography   #to enter password
+      executable: pip3.9   #ansible version is 3.8 so python version also should 3.9
+ 
+ 
+  - name: checking db connection         #ansible mysql community to check wheather the mysql root password is setuped or not
+    community.mysql.mysql_info:     #community module use chesi mysql ki connect ayie version check chestunnamu
+     login_user: root
+     login_password: "{{mysql_root_password}}"
+     login_host: "{{login_host}}"
+     filter: version    #checking version of mysql (checking wheather it is installed or not)
+    ignore_errors: yes   #to ignoring the errors
+    register: mysql_connection_output   #edaina task/command run chesi output ni variable lo store cheyadaniki  
+#password setup ayiete above command work avtundhi password setup kakapothe above commands work avvavu
+
+  - name: printing output
+    ansible.builtin.debug:
+     msg: "output is:{{mysql_connection_output}} "
+#db password set ayie vunte paina command run avtundhi set kakapothe below command password set chestundhi
+  - name: setting db root password
+    ansible.builtin.command: "mysql_secure_installation --set-root-pass {{mysql_root_password}}"
+    when: mysql_connection_output.failed is true    #shouldnot use {{}} braces for when condition

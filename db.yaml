@@ -10,11 +10,11 @@
   - name: installing mysql      
     ansible.builtin.dnf:
     - name: mysql
-      status: latest
+      state: latest
   - name: start service         
     ansible.builtin.service:
     - name: mysql
-      status: started
+      state: started
       enabled: yes
   - name: installing python dependencies to connect mysql    #installing python depencencies to connect mysql
     ansible.builtin.pip:

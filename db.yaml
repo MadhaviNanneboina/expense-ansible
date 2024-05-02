@@ -1,5 +1,6 @@
 - name: db configuration
   hosts: db.vishruth.online
+  become: yes
   vars:
    login_host: db.vishruth.online
   vars_prompt:

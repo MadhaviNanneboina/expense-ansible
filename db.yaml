@@ -7,10 +7,10 @@
     name: mysql_root_password
     prompt: "please enter your db password"
   tasks:
-  - name: installing mysql      
-    ansible.builtin.dnf:
-    - name: mysql-server
-      state: latest
+   - name: installing mysql      
+     ansible.builtin.dnf:
+     - name: mysql-server
+       state: latest
   - name: start service         
     ansible.builtin.service:
     - name: mysqld

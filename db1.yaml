@@ -1,0 +1,32 @@
+- name: db configuration
+  hosts: db
+  become: yes
+  vars:
+  tasks:
+  - name: installing mysql server
+    ansible.builtin.dnf:
+      name: mysql-server
+      state: latest
+  - name: start service
+    ansible.builtin.service:
+      name: mysqld
+      state: started
+      enabled: yes
+  - name: installing python dependencies
+    ansible.builtin.pip:
+      name:
+      - PyMySQL
+      - cryptography
+      executable: pip3.9
+  - name: checking db connection
+    community.mysql.mysql_info:
+      login_user: root
+      login_password: ExpenseApp@1
+      login_host: db.vishruth.online
+      filter: version
+    ignore_errors: yes
+    register: mysql_connection_output
+
+  - name: printing output
+    ansible.builtin.debug:
+      msg: "output is {{ mysql_connection_output }}"

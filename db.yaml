@@ -7,7 +7,7 @@
     prompt: "please enter your db password"
    
   tasks:
-  - name: installing mysql      #installing mysql
+  - name: installing mysql      ##installing mysql
     ansible.builtin.dnf:
     - name: mysql
       status: latest

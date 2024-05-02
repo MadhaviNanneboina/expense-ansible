@@ -17,7 +17,7 @@
       status: started
       enabled: yes
   - name: installing python dependencies to connect mysql    #installing python depencencies to connect mysql
-     ansible.builtin.pip:
+    ansible.builtin.pip:
       name:
       - PyMySQL   #to connect mysql python dependency
       - cryptography   #to enter password

@@ -2,6 +2,10 @@
   hosts: db
   become: yes
   vars:
+   db_host: db.vishruth.online
+  vars_prompt:
+   name: mysql_root_password
+   prompt: "enter your db password"
   tasks:
   - name: installing mysql server
     ansible.builtin.dnf:
@@ -21,8 +25,8 @@
   - name: checking db connection
     community.mysql.mysql_info:
       login_user: root
-      login_password: ExpenseApp@1
-      login_host: db.vishruth.online
+      login_password: "{{mysql_root_password}}"
+      login_host: "{{db_host}}"
       filter: version
     ignore_errors: yes
     register: mysql_connection_output
@@ -30,3 +34,7 @@
   - name: printing output
     ansible.builtin.debug:
       msg: "output is {{ mysql_connection_output }}"
+
+  - name: setting up root password
+    ansible.builtin.command: "mysql_secure_installation --set-root-pass {{mysql_root_password}}"
+    when: mysql_connection_output.false is true 

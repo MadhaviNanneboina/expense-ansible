@@ -9,11 +9,11 @@
   tasks:
   - name: installing mysql      
     ansible.builtin.dnf:
-    - name: mysql
+    - name: mysql-server
       state: latest
   - name: start service         
     ansible.builtin.service:
-    - name: mysql
+    - name: mysqld
       state: started
       enabled: yes
   - name: installing python dependencies to connect mysql    #installing python depencencies to connect mysql

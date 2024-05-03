@@ -41,7 +41,7 @@
 
   - name: install npm dependencies  #ansible doesnot have module for npm install so that's why we are sing command
     ansible.builtin.command: npm install
-     args:   #mentioning directory for install dependencies
+     args:                               #mentioning directory for install dependencies
       mkdir: /app
   
   - name: copying backend service   #master(ansible) server lo vunna backend service ni remote serverloki copy chestunamu

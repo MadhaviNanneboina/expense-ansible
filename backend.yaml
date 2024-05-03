@@ -1,0 +1,60 @@
+- name: backend configuration
+  hosts:
+  become: yes
+  vars:
+   login_password: ExpenseApp@1
+   login_host: db.vishruth.online
+  tasks:
+  - name: disabling nodejs18
+    ansible.builtin.command: dnf module disable nodejs -y
+     
+  - name: enabling nodejs20
+    ansible.builtin.command: dnf module enable nodejs:20 -y
+    
+  - node: install nodejs
+    ansible.builtin.dnf:
+      name: nodejs
+      state: installed
+
+  - name: create expense user    #adding user for expensebackend, by default all ansible modules are idempotency in nature
+    ansible.builtin.user:       #user module is hetrogeneous it will work for all distributions
+      name: expense            #besed on server it will create user by using adduser/useradd command
+ 
+  - name: creating app directory
+    ansible.builtin.file:            
+      path: /app               #we have to give path were we want to create directory
+      state: directory         #we have to mention state as directory otherwise it will create file
+
+  - name: downloading backend code
+    ansible.builtin.get_url:
+      url: https://expense-builds.s3.us-east-1.amazonaws.com/expense-backend-v2.zip
+      dest: /tmp/backend.zip
+
+  - name: unzip backend code
+    ansible.builtin.unarchive:
+      src: /tmp/backend.zip     #bydefault it will check in master server to avoid that one we are mentioning remote_src.then it will check in remote server for that source path
+      dest: /app
+      remote_src: yes
+
+  - name: install npm dependencies  #ansible doesnot have module for npm install so that's why we are sing command
+    ansible.builtin.command: npm install
+     args:   #mentioning directory for install dependencies
+      chdir: /app
+  
+  - name: copying backend service   #master(ansible) server lo vunna backend service ni remote serverloki copy chestunamu
+    ansible.builtin.copy:
+     src: backend.service
+     dest: /etc/systemd/system/backend.service 
+  
+  - name: install python mysql dependencies 
+    ansible.builtin.pip:
+     name:
+    - PyMySQL
+    - cryptography
+    executable: pip3.9
+
+  - name: import data into mysql       #schema loading
+    community.mysql.mysql_db:
+     login_user: root
+     login_password: "{{ login_password }}"
+     login_host: "{{ login_host }}"

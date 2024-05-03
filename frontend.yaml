@@ -1,5 +1,5 @@
 - name: frontend configuration
-  hosts:
+  hosts: frontend
   become: yes
   vars:
   tasks:

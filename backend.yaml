@@ -1,5 +1,5 @@
 - name: backend configuration
-  hosts:
+  hosts: backend
   become: yes
   vars:
    login_password: ExpenseApp@1
@@ -13,8 +13,11 @@
     
   - node: install nodejs
     ansible.builtin.dnf:
-      name: nodejs
+      name: "{{ item }}"
       state: installed
+      loop:
+      - nodejs
+      - mysql
 
   - name: create expense user    #adding user for expensebackend, by default all ansible modules are idempotency in nature
     ansible.builtin.user:       #user module is hetrogeneous it will work for all distributions
@@ -39,7 +42,7 @@
   - name: install npm dependencies  #ansible doesnot have module for npm install so that's why we are sing command
     ansible.builtin.command: npm install
      args:   #mentioning directory for install dependencies
-      chdir: /app
+      mkdir: /app
   
   - name: copying backend service   #master(ansible) server lo vunna backend service ni remote serverloki copy chestunamu
     ansible.builtin.copy:
@@ -49,12 +52,26 @@
   - name: install python mysql dependencies 
     ansible.builtin.pip:
      name:
-    - PyMySQL
-    - cryptography
-    executable: pip3.9
+     - PyMySQL
+     - cryptography
+     executable: pip3.9
 
-  - name: import data into mysql       #schema loading
+  - name: import data into mysql       #schema loading /creating schema in mysql
     community.mysql.mysql_db:
      login_user: root
      login_password: "{{ login_password }}"
      login_host: "{{ login_host }}"
+     target: /app/schema/backend.sql
+     state: import
+     name: all  #vunna data mothanni dump cheyamani
+
+
+  - name: deamon reload  #loading the service
+    ansible.builtin.systemd_service:
+      deamon_reload: yes
+
+  - name: start and enabling backend service
+    ansible.builtin.service:
+      name: backend
+      state: started
+      enabled: yes
